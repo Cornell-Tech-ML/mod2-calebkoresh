@@ -16,6 +16,7 @@ from .tensor_functions import (
     EQ,
     LT,
     Add,
+    Sub,
     All,
     Copy,
     Exp,
@@ -93,6 +94,8 @@ class Tensor:
             self.name = str(self.unique_id)
 
         self.f = backend
+        self.size = self._tensor.size
+        self.dims = self._tensor.dims
 
     def requires_grad_(self, x: bool) -> None:
         self.history = History()
@@ -118,7 +121,7 @@ class Tensor:
 
     def item(self) -> float:
         """Convert a 1-element tensor to a float"""
-        assert self.size == 1
+        assert self._tensor.size == 1
         x: float = self._tensor._storage[0]
         return x
 
@@ -254,6 +257,7 @@ class Tensor:
 
         x = h.last_fn._backward(h.ctx, d_output)
         assert len(x) == len(h.inputs), f"Bug in function {h.last_fn}"
+
         return [
             (inp, inp.expand(self._ensure_tensor(d_in)))
             for inp, d_in in zip(h.inputs, x)
@@ -285,3 +289,95 @@ class Tensor:
 
     # Functions
     # TODO: Implement for Task 2.3.
+
+    def __add__(self, b: TensorLike) -> Tensor:
+        return Add.apply(self, self._ensure_tensor(b))
+    
+    def __sub__(self, b: TensorLike) -> Tensor:
+        return Sub.apply(self, self._ensure_tensor(b))
+
+    def __mul__(self, b: TensorLike) -> Tensor:
+        return Mul.apply(self, self._ensure_tensor(b))
+
+    def __lt__(self, b: TensorLike) -> Tensor:
+        return LT.apply(self, self._ensure_tensor(b))
+    
+    def __eq__(self, b: TensorLike) -> Tensor:
+        return EQ.apply(self, self._ensure_tensor(b))
+    
+    def __gt__(self, b: TensorLike) -> Tensor:
+        return LT.apply(self._ensure_tensor(b), self)
+    
+    def __neg__(self) -> Tensor:
+        return Neg.apply(self)
+    
+    def __radd__(self, b: TensorLike) -> Tensor:
+        return Add.apply(self._ensure_tensor(b), self)
+    
+    def __rmul__(self, b: TensorLike) -> Tensor:
+        return Mul.apply(self._ensure_tensor(b), self)
+    
+    def all(self, dim: Optional[int] = None) -> Tensor:
+        if dim is None:
+            dim = []
+            for i in range(len(self.shape)):
+                dim.append(i)
+            return All.apply(self, tensor(dim))
+        else:
+            return All.apply(self, tensor(dim))
+    
+    def is_close(self, b: TensorLike) -> Tensor:
+        return IsClose.apply(self, self._ensure_tensor(b))
+    
+    def sigmoid(self) -> Tensor:
+        return Sigmoid.apply(self)
+    
+    def relu(self) -> Tensor:
+        return ReLU.apply(self)
+    
+    def log(self) -> Tensor:
+        return Log.apply(self)
+    
+    def exp(self) -> Tensor:
+        return Exp.apply(self)
+    
+    def sum(self, dim: Optional[int] = None) -> Tensor:
+        if dim is None:
+            dim = []
+            for i in range(len(self.shape)):
+                dim.append(i)
+        return Sum.apply(self, tensor(dim))
+    
+    def mean(self, dim: Optional[int] = None) -> Tensor:
+        if dim is None:
+            dim = []
+            for i in range(len(self.shape)):
+                dim.append(i)
+        return Sum.apply(self, tensor(dim)) / operators.prod(self.shape)
+    
+    def permute(self, *order: UserShape) -> Tensor:
+        if len(order) == 1 and isinstance(order[0], int):
+            order = (order[0],)
+        else:
+            order = tuple(order)
+    
+        # Convert order to a Tensor
+        order_tensor = tensor(order)
+    
+        # Validate permutation order
+        if len(order) != len(self.shape):
+            raise ValueError(f"Permutation order length {len(order)} does not match tensor dimensions {len(self.shape)}.")
+    
+        if sorted(order) != list(range(len(self.shape))):
+            raise ValueError(f"Invalid permutation order {order}. It must be a permutation of {list(range(len(self.shape)))}.")
+        
+        return Permute.apply(self, order_tensor)
+    
+    
+    def view(self, *shape: UserShape) -> Tensor:
+        if len(shape) == 1 and isinstance(shape[0], int):
+            shape = (shape[0],)
+        return View.apply(self, tensor(shape))
+    
+    def zero_grad_(self) -> None:
+        self.grad = None
