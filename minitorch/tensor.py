@@ -383,17 +383,6 @@ class Tensor:
         # Convert order to a Tensor
         order_tensor = tensor(order)
 
-        # Validate permutation order
-        if len(order) != len(self.shape):
-            raise ValueError(
-                f"Permutation order length {len(order)} does not match tensor dimensions {len(self.shape)}."
-            )
-
-        if sorted(order) != list(range(len(self.shape))):
-            raise ValueError(
-                f"Invalid permutation order {order}. It must be a permutation of {list(range(len(self.shape)))}."
-            )
-
         return Permute.apply(self, order_tensor)
 
     def view(self, *shape: UserShape) -> Tensor:
