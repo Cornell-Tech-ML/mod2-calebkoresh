@@ -38,7 +38,7 @@ class TorchTrain:
         self.model = Network(hidden_layers)
 
     def run_one(self, x):
-        return self.model.forward(torch.tensor([x]))
+        return self.model.forward(torch.tensor(x))
 
     def run_many(self, X):
         return self.model.forward(torch.tensor(X)).detach()

@@ -2,16 +2,97 @@
 Be sure you have minitorch installed in you Virtual Env.
 >>> pip install -Ue .
 """
+# import sys
+# import os
 
+# Add the parent directory to the Python path
+# parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# sys.path.append(parent_dir)
 import minitorch
+from numpy import array
+from minitorch.tensor_functions import (
+    EQ,
+    LT,
+    Add,
+    Sub,
+    All,
+    Copy,
+    Exp,
+    Inv,
+    IsClose,
+    Log,
+    MatMul,
+    Mul,
+    Neg,
+    Permute,
+    ReLU,
+    Sigmoid,
+    Sum,
+    View,
+    tensor,
+)
 
 # Use this function to make a random parameter in
 # your module.
 def RParam(*shape):
-    r = 2 * (minitorch.rand(shape) - 0.5)
+    r = 2 * (minitorch.rand(shape, requires_grad=True) - 0.5)
     return minitorch.Parameter(r)
 
 # TODO: Implement for Task 2.5.
+
+class Network(minitorch.Module):
+    def __init__(self, hidden_layers):
+        super().__init__()
+        self.layer1 = Linear(2, hidden_layers)
+        self.layer2 = Linear(hidden_layers, hidden_layers)
+        self.layer3 = Linear(hidden_layers, 1)
+
+    def forward(self, x):
+        x = self.layer1.forward(x)
+        x = x.relu()
+        x = self.layer2.forward(x)
+        x = x.relu()
+        x = self.layer3.forward(x)
+        x = x.sigmoid()
+        return x
+
+
+class Linear(minitorch.Module):
+    def __init__(self, in_size, out_size):
+        super().__init__()
+        self.weight = RParam(in_size, out_size)
+        self.bias = RParam(out_size)
+
+    def forward(self, x):
+        """
+        Forward pass for the Linear layer.
+
+        Args:
+            x (Tensor): Input tensor of shape (batch_size, 2).
+
+        Returns:
+            Tensor: Output tensor of shape (batch_size, out_size).
+        """
+        # Reshape x to (batch_size, in_size, 1)
+        x_reshaped = View.apply(x, tensor([x.shape[0], x.shape[1]]))
+
+        x_reshaped = View.apply(x, tensor([x_reshaped.shape[0], x_reshaped.shape[1], 1]))
+
+        # Reshape weight to (1, in_size, out_size)
+        weight_reshaped = View.apply(self.weight.value, tensor([1, self.weight.value.shape[0], self.weight.value.shape[1]]))
+
+        # Element-wise multiplication
+        prod = Mul.apply(x_reshaped, weight_reshaped)
+
+        # Sum along the in_size dimension
+        result = Sum.apply(prod, tensor([1]))
+
+        # Add bias
+        result = Add.apply(result, self.bias.value)
+        result = View.apply(result, tensor([x_reshaped.shape[0], self.weight.value.shape[1]]))
+
+        return result
+
 
 def default_log_fn(epoch, total_loss, correct, losses):
     print("Epoch ", epoch, " loss ", total_loss, "correct", correct)
