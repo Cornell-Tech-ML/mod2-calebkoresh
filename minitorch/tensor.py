@@ -356,18 +356,22 @@ class Tensor:
     def sum(self, dim: Optional[int] = None) -> Tensor:
         """Compute the sum of the tensor along the given dimension"""
         if dim is None:
-            dim = []
+            d = []
             for i in range(len(self.shape)):
-                dim.append(i)
-        return Sum.apply(self, tensor(dim))
+                d.append(i)
+            return Sum.apply(self, tensor(d))
+        else:
+            return Sum.apply(self, tensor(dim))
 
     def mean(self, dim: Optional[int] = None) -> Tensor:
         """Compute the mean of the tensor along the given dimension"""
         if dim is None:
-            dim = []
+            d = []
             for i in range(len(self.shape)):
-                dim.append(i)
-        return Sum.apply(self, tensor(dim)) / operators.prod(self.shape)
+                d.append(i)
+            return Sum.apply(self, tensor(d)) / operators.prod(self.shape)
+        else:
+            return Sum.apply(self, tensor(dim)) / operators.prod(self.shape)
 
     def permute(self, *order: UserShape) -> Tensor:
         """Permute the dimensions of the tensor"""
