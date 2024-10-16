@@ -319,7 +319,6 @@ def relu_back(x: float, d: float) -> float:
         float: The derivative of the ReLU function with respect to x
 
     """
-    print(f"x: {x}, d: {d}")
     return d * (x > 0)
 
 

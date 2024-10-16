@@ -37,19 +37,31 @@ variable_count = 1
 
 
 class Variable(Protocol):
-    def accumulate_derivative(self, x: Any) -> None: ...
+    def accumulate_derivative(self, x: Any) -> None:
+        """Accumulate the derivative of the variable"""
+        ...
 
     @property
-    def unique_id(self) -> int: ...
+    def unique_id(self) -> int:
+        """Unique identifier for the variable"""
+        ...
 
-    def is_leaf(self) -> bool: ...
+    def is_leaf(self) -> bool:
+        """True if this variable is a leaf"""
+        ...
 
-    def is_constant(self) -> bool: ...
+    def is_constant(self) -> bool:
+        """True if this variable was created by an operation on constants"""
+        ...
 
     @property
-    def parents(self) -> Iterable["Variable"]: ...
+    def parents(self) -> Iterable["Variable"]:
+        """Parents of the variable"""
+        ...
 
-    def chain_rule(self, d_output: Any) -> Iterable[Tuple[Variable, Any]]: ...
+    def chain_rule(self, d_output: Any) -> Iterable[Tuple[Variable, Any]]:
+        """Chain rule for the variable"""
+        ...
 
 
 def topological_sort(variable: Variable) -> Iterable[Variable]:
@@ -68,7 +80,6 @@ def topological_sort(variable: Variable) -> Iterable[Variable]:
     seen = set()
 
     def visit(var: Variable) -> None:
-        
         if var.unique_id in seen or var.is_constant():
             return
         if not var.is_leaf():
@@ -90,7 +101,9 @@ def backpropagate(variable: Variable, deriv: Any) -> None:
         variable: The right-most variable
         deriv  : Its derivative that we want to propagate backward to the leaves.
 
-    No return. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
+    Returns:
+    -------
+        None. Should write to its results to the derivative values of each leaf through `accumulate_derivative`.
 
     """
     queue = topological_sort(variable)
@@ -125,4 +138,5 @@ class Context:
 
     @property
     def saved_tensors(self) -> Tuple[Any, ...]:
+        """Saved tensors"""
         return self.saved_values
