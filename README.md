@@ -18,7 +18,14 @@ The files that will be synced are:
 
         minitorch/operators.py minitorch/module.py minitorch/autodiff.py minitorch/scalar.py minitorch/scalar_functions.py minitorch/module.py project/run_manual.py project/run_scalar.py project/datasets.py
 
+## Simple Dataset
 ![Simple Dataset](simpleM2.png)
+
+## Diagonal Dataset
 ![Diagonal Dataset](diagM2.png)
+
+## Split Dataset
 ![Split Dataset](splitM2.png)
+
+## XOR Dataset
 ![XOR Dataset](xorM2.png)
