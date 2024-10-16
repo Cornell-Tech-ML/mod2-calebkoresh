@@ -127,9 +127,9 @@ def shape_broadcast(shape1: UserShape, shape2: UserShape) -> UserShape:
     # Pad the shorter shape with 1s
     len_diff = len(shape1) - len(shape2)
     if len_diff > 0:
-        shape2 = (1,) * len_diff + shape2
+        shape2 = (1,) * len_diff + tuple(shape2)
     elif len_diff < 0:
-        shape1 = (1,) * (-len_diff) + shape1
+        shape1 = (1,) * (-len_diff) + tuple(shape1)
 
     # Create the broadcasted shape
     broadcasted_shape = []
