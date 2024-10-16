@@ -373,7 +373,7 @@ class Tensor:
         else:
             return Sum.apply(self, tensor(dim)) / operators.prod(self.shape)
 
-    def permute(self, *order: UserShape) -> Tensor:
+    def permute(self, *order: UserShape | int) -> Tensor:
         """Permute the dimensions of the tensor"""
         if len(order) == 1 and isinstance(order[0], int):
             order = (order[0],)
@@ -385,7 +385,7 @@ class Tensor:
 
         return Permute.apply(self, order_tensor)
 
-    def view(self, *shape: UserShape) -> Tensor:
+    def view(self, *shape: UserShape | int) -> Tensor:
         """View the tensor with the given shape"""
         if len(shape) == 1 and isinstance(shape[0], int):
             shape = (shape[0],)
