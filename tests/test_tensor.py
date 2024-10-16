@@ -65,9 +65,11 @@ def test_permute(data: DataObject, t1: Tensor) -> None:
     permutation = data.draw(permutations(range(len(t1.shape))))
 
     def permute(a: Tensor) -> Tensor:
-        return a.permute(*permutation)
+        if isinstance(permutation, int):
+            return a.permute(permutation)
+        else:
+            return a.permute(*permutation)
 
-    print(f"permutation: {permutation}")
     grad_check(permute, t1)
 
 
