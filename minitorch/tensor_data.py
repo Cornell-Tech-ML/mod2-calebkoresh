@@ -28,7 +28,7 @@ Shape: TypeAlias = npt.NDArray[np.int32]
 Strides: TypeAlias = npt.NDArray[np.int32]
 
 UserIndex: TypeAlias = Sequence[int]
-UserShape: TypeAlias = Sequence[int]
+UserShape: TypeAlias = Sequence[int] | int
 UserStrides: TypeAlias = Sequence[int]
 
 
