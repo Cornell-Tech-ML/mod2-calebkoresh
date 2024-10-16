@@ -328,9 +328,7 @@ class Tensor:
     def all(self, dim: Optional[int] = None) -> Tensor:
         """Check if all elements in the tensor are true"""
         if dim is None:
-            dim = []
-            for i in range(len(self.shape)):
-                dim.append(i)
+            dim = [int(i) for i in range(len(self.shape))]
             return All.apply(self, tensor(dim))
         else:
             return All.apply(self, tensor(dim))
